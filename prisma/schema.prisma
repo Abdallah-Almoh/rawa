@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+}
+
+enum DeliveryStatus {
+  PENDING
+  ASSIGNED
+  PICKED_UP
+  DELIVERING
+  DELIVERED
+  FAILED
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+}
+
+enum DiscountType {
+  AMOUNT
+  PERCENT
+}
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  username  String     @unique
+  password  String
+  email     String?    @unique
+  phone     String?
+  role      Role?      @relation(fields: [roleId], references: [id])
+  roleId    Int?
+  status    UserStatus @default(ACTIVE)
+   deliveries Delivery[] 
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  emailVerified Boolean @default(false)
+  
+  orders    Order[]
+  verifications EmailVerification[]
+
+  @@index([username])
+  @@index([roleId])
+}
+
+model Country {
+  id             Int       @id @default(autoincrement())
+  engName        String    @unique
+  arName         String    @unique
+  currencyId     Int       @unique
+  currency       Currency  @relation(fields: [currencyId], references: [id])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  provinces Province[]
+  factories factory[]
+  mosques   Mosque[]
+
+  @@index([engName])
+  @@index([arName])
+}
+
+model Currency {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique
+  symbol    String
+  exchangeRate Decimal @db.Decimal(12,6) // 1 USD = X currency
+
+  countries Country[]
+}
+
+model Province {
+  id        Int       @id @default(autoincrement())
+  engName   String
+  arName    String
+  country   Country   @relation(fields: [countryId], references: [id])
+  countryId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  mosques   Mosque[]
+  districts District[]
+
+  @@unique([countryId, engName])
+  @@unique([countryId, arName])
+  @@index([countryId])
+}
+
+model District {
+  id         Int       @id @default(autoincrement())
+  engName    String
+  arName     String
+  province   Province  @relation(fields: [provinceId], references: [id])
+  provinceId Int
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  mosques Mosque[]
+
+  @@unique([provinceId, engName])
+  @@unique([provinceId, arName])
+  @@index([provinceId])
+}
+
+model factory {
+  id        Int      @id @default(autoincrement())
+  engName   String
+  arName    String
+  phone     String
+  email     String   @unique
+  address   String?
+  country   Country? @relation(fields: [countryId], references: [id])
+  countryId Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([engName])
+  @@index([arName])
+  @@index([phone])
+  @@index([countryId])
+}
+
+model Mosque {
+  id          Int       @id @default(autoincrement())
+  engName     String
+  arName      String
+  engServName String
+  arServName  String
+  phone       String
+  address     String?
+  country     Country?  @relation(fields: [countryId], references: [id])
+  countryId   Int?
+  province    Province? @relation(fields: [provinceId], references: [id])
+  provinceId  Int?
+  district    District? @relation(fields: [districtId], references: [id])
+  districtId  Int?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  orders Order[]
+
+  @@index([engName])
+  @@index([arName])
+  @@index([phone])
+  @@index([countryId])
+  @@index([provinceId])
+  @@index([districtId])
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  engName     String
+  arName      String
+  quantity    Int           @default(0)
+  value       Int
+  price       Decimal       @db.Decimal(10,2)
+  discountType DiscountType?
+  discountValue Decimal?    @db.Decimal(10,2)
+  status      ProductStatus @default(ACTIVE)
+  image       String?
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  files      File[]
+  orderItems OrderItem[]
+
+  @@index([engName])
+  @@index([arName])
+  @@index([status])
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  fileName  String
+  fileType  String
+  fileSize  Int
+  fileUrl   String
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int?
+  ad        Ad?      @relation(fields: [adId], references: [id], onDelete: Cascade)
+  adId      Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ad {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  inShow  Boolean @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+
+  files File[]
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  orderNumber     String      @unique
+  user            User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId          Int?
+  mosque          Mosque?     @relation(fields: [mosqueId], references: [id], onDelete: SetNull)
+  mosqueId        Int?
+  items           OrderItem[]
+  totalAmount     Decimal     @db.Decimal(10,2)
+  status          OrderStatus @default(PENDING)
+  deliveryAddress String?
+  customerNotes   String?
+  deliveryNotes   String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  delivery        Delivery?
+
+  @@index([userId])
+  @@index([mosqueId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id         Int      @id @default(autoincrement())
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    Int
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+  quantity   Int
+  unitPrice  Decimal  @db.Decimal(10,2)
+  totalPrice Decimal  @db.Decimal(10,2)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Delivery {
+  id            Int            @id @default(autoincrement())
+  order         Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       Int            @unique
+  user          User?          @relation(fields: [userId], references: [id])
+  userId        Int?
+  status        DeliveryStatus @default(PENDING)
+  startTime     DateTime?
+  endTime       DateTime?
+  estimatedTime Int?
+  actualTime    Int?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model EmailVerification {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  code      String
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([code])
+}
