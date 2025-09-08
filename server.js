@@ -7,7 +7,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000 ||3001;
 
 async function start() {
   try {
