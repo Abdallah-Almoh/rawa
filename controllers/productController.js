@@ -37,6 +37,57 @@ const upload = multer({
 
 const uploadMultiplePhotos = upload.array('photos', 20); // upload many photos max 20
 
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Create a new product
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can create a new product. Supports multiple image uploads.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               quantity:
+ *                 type: integer
+ *               value:
+ *                 type: number
+ *               price:
+ *                 type: number
+ *               discountType:
+ *                 type: string
+ *               discountValue:
+ *                 type: number
+ *               status:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               photos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       201:
+ *         description: Product created successfully
+ *       400:
+ *         description: Validation errors
+ *       500:
+ *         description: Internal server error
+ */
+
+
 async function createProduct(req, res) {
   try {
     const { engName, arName, quantity, value, price, discountType, discountValue, status, description } = req.body;
@@ -89,6 +140,22 @@ async function createProduct(req, res) {
   }
 }
 
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Get all products
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Retrieve a list of all products with their images.
+ *     responses:
+ *       200:
+ *         description: List of products
+ *       500:
+ *         description: Internal server error
+ */
+
 async function getProducts(req, res) {
   try {
     const products = await prisma.product.findMany({ include: { files: true }, orderBy: { engName: 'asc' } });
@@ -98,6 +165,33 @@ async function getProducts(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+/**
+ * @swagger
+ * /products/{id}:
+ *   get:
+ *     summary: Get product by ID
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Retrieve a product by its ID, including uploaded files.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product found
+ *       400:
+ *         description: Invalid product ID
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function getProductById(req, res) {
   try {
@@ -113,6 +207,65 @@ async function getProductById(req, res) {
     return res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+/**
+ * @swagger
+ * /products/{id}:
+ *   put:
+ *     summary: Update a product
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can update product details. Supports updating images (multipart/form-data).
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               quantity:
+ *                 type: integer
+ *               value:
+ *                 type: number
+ *               price:
+ *                 type: number
+ *               discountType:
+ *                 type: string
+ *               discountValue:
+ *                 type: number
+ *               status:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               photos:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *     responses:
+ *       200:
+ *         description: Product updated successfully
+ *       400:
+ *         description: Invalid request
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function updateProduct(req, res) {
   try {
@@ -156,6 +309,34 @@ async function updateProduct(req, res) {
   }
 }
 
+/**
+ * @swagger
+ * /products/{id}:
+ *   delete:
+ *     summary: Delete a product
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can delete a product by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product deleted successfully
+ *       400:
+ *         description: Invalid product ID
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
+ */
 async function deleteProduct(req, res) {
   try {
     const id = Number(req.params.id);

@@ -31,13 +31,11 @@ router.delete(
 
 router.get(
   '/',
-  authMiddleware,
   mosqueController.getMosques
 );
 
 router.get(
   '/:id',
-  authMiddleware,
   mosqueController.getMosqueById
 );
 

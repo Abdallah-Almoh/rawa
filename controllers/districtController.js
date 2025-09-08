@@ -22,6 +22,46 @@ function handleError(res, err) {
   return res.status(500).json({ message: 'Internal server error' });
 }
 
+/**
+ * @swagger
+ * /districts:
+ *   post:
+ *     summary: Create a new district
+ *     tags: [Districts]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can create a district.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - engName
+ *               - arName
+ *               - provinceId
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               provinceId:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: District created successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       409:
+ *         description: District already exists in this province
+ *       500:
+ *         description: Internal server error
+ */
 
 async function createDistrict(req, res) {
   try {
@@ -46,6 +86,19 @@ async function createDistrict(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /districts:
+ *   get:
+ *     summary: Get all districts
+ *     tags: [Districts]
+ *     description: Retrieve a list of all districts with their province.
+ *     responses:
+ *       200:
+ *         description: List of districts
+ *       500:
+ *         description: Internal server error
+ */
 
 async function getDistricts(req, res) {
   try {
@@ -58,6 +111,29 @@ async function getDistricts(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /districts/{id}:
+ *   get:
+ *     summary: Get district by ID
+ *     tags: [Districts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: District ID
+ *     responses:
+ *       200:
+ *         description: District found
+ *       400:
+ *         description: Invalid district ID
+ *       404:
+ *         description: District not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function getDistrictById(req, res) {
   try {
@@ -75,6 +151,51 @@ async function getDistrictById(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /districts/{id}:
+ *   put:
+ *     summary: Update a district
+ *     tags: [Districts]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can update a district.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: District ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               provinceId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: District updated successfully
+ *       400:
+ *         description: Validation error / Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: District not found
+ *       409:
+ *         description: District name conflict in the same province
+ *       500:
+ *         description: Internal server error
+ */
 
 async function updateDistrict(req, res) {
   try {
@@ -112,6 +233,36 @@ async function updateDistrict(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /districts/{id}:
+ *   delete:
+ *     summary: Delete a district
+ *     tags: [Districts]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can delete a district.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: District ID
+ *     responses:
+ *       200:
+ *         description: District deleted successfully
+ *       400:
+ *         description: Invalid district ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: District not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function deleteDistrict(req, res) {
   try {

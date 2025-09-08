@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 const { z } = require('zod');
 const checkRole = require('../utils/roleChecker');
 
-// ---------------- Validation Schema ----------------
 const createFactorySchema = z.object({
   engName: z.string().min(2, 'English name must be at least 2 characters'),
   arName: z.string().min(2, 'Arabic name must be at least 2 characters'),
@@ -24,13 +23,58 @@ const updateFactorySchema = z.object({
   countryId: z.number().int().optional(),
 });
 
-// ---------------- Error Handler ----------------
 function handleError(res, err) {
   console.error(err);
   return res.status(500).json({ message: 'Internal server error' });
 }
 
-// ---------------- Controller Functions ----------------
+/**
+ * @swagger
+ * /factories:
+ *   post:
+ *     summary: Create a new factory
+ *     tags: [Factories]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can create a factory.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - engName
+ *               - arName
+ *               - phone
+ *               - email
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               countryId:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Factory created successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       409:
+ *         description: Email already exists
+ *       500:
+ *         description: Internal server error
+ */
 
 // Create Factory
 async function createFactory(req, res) {
@@ -53,6 +97,19 @@ async function createFactory(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /factories:
+ *   get:
+ *     summary: Get all factories
+ *     tags: [Factories]
+ *     description: Retrieve a list of all factories.
+ *     responses:
+ *       200:
+ *         description: List of factories
+ *       500:
+ *         description: Internal server error
+ */
 
 // Get all factories
 async function getFactories(req, res) {
@@ -65,6 +122,29 @@ async function getFactories(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /factories/{id}:
+ *   get:
+ *     summary: Get factory by ID
+ *     tags: [Factories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Factory ID
+ *     responses:
+ *       200:
+ *         description: Factory found
+ *       400:
+ *         description: Invalid factory ID
+ *       404:
+ *         description: Factory not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function getFactoryById(req, res) {
   try {
@@ -79,6 +159,57 @@ async function getFactoryById(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /factories/{id}:
+ *   put:
+ *     summary: Update a factory
+ *     tags: [Factories]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can update a factory.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Factory ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               countryId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Factory updated successfully
+ *       400:
+ *         description: Validation error / Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Factory not found
+ *       409:
+ *         description: Email already exists
+ *       500:
+ *         description: Internal server error
+ */
 
 async function updateFactory(req, res) {
   try {
@@ -106,6 +237,36 @@ async function updateFactory(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /factories/{id}:
+ *   delete:
+ *     summary: Delete a factory
+ *     tags: [Factories]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can delete a factory.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Factory ID
+ *     responses:
+ *       200:
+ *         description: Factory deleted successfully
+ *       400:
+ *         description: Invalid factory ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Factory not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function deleteFactory(req, res) {
   try {

@@ -21,6 +21,40 @@ function handleError(res, err) {
   return res.status(500).json({ message: err.message || "Internal server error" });
 }
 
+/**
+ * @swagger
+ * /provinces:
+ *   post:
+ *     summary: Create a new province
+ *     tags: [Provinces]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can create a province. Duplicate names within the same country are not allowed.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               countryId:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Province created successfully
+ *       400:
+ *         description: Validation errors
+ *       409:
+ *         description: Province already exists in this country
+ *       500:
+ *         description: Internal server error
+ */
 async function createProvince(req, res) {
   try {
     const validation = createProvinceSchema.safeParse(req.body);
@@ -47,6 +81,19 @@ async function createProvince(req, res) {
   }
 }
 
+
+/**
+ * @swagger
+ * /provinces:
+ *   get:
+ *     summary: Get all provinces
+ *     tags: [Provinces]
+ *     responses:
+ *       200:
+ *         description: List of provinces with their country, mosques, and districts
+ *       500:
+ *         description: Internal server error
+ */
 async function getProvinces(req, res) {
   try {
     const provinces = await prisma.province.findMany({
@@ -58,6 +105,31 @@ async function getProvinces(req, res) {
     return handleError(res, err);
   }
 }
+
+/**
+ * @swagger
+ * /provinces/{id}:
+ *   get:
+ *     summary: Get a province by ID
+ *     tags: [Provinces]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Province ID
+ *     responses:
+ *       200:
+ *         description: Province found
+ *       400:
+ *         description: Invalid province ID
+ *       404:
+ *         description: Province not found
+ *       500:
+ *         description: Internal server error
+ */
+
 
 async function getProvinceById(req, res) {
   try {
@@ -75,6 +147,50 @@ async function getProvinceById(req, res) {
     return handleError(res, err);
   }
 }
+
+/**
+ * @swagger
+ * /provinces/{id}:
+ *   put:
+ *     summary: Update a province
+ *     tags: [Provinces]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can update a province. Duplicate names within the same country are not allowed.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Province ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               countryId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Province updated successfully
+ *       400:
+ *         description: Invalid request or validation errors
+ *       404:
+ *         description: Province not found
+ *       409:
+ *         description: Province name already exists in this country
+ *       500:
+ *         description: Internal server error
+ */
 
 async function updateProvince(req, res) {
   try {
@@ -115,6 +231,34 @@ async function updateProvince(req, res) {
   }
 }
 
+/**
+ * @swagger
+ * /provinces/{id}:
+ *   delete:
+ *     summary: Delete a province
+ *     tags: [Provinces]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can delete a province.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Province ID
+ *     responses:
+ *       200:
+ *         description: Province deleted successfully
+ *       400:
+ *         description: Invalid province ID
+ *       404:
+ *         description: Province not found
+ *       500:
+ *         description: Internal server error
+ */
 async function deleteProvince(req, res) {
   try {
     const id = Number(req.params.id);

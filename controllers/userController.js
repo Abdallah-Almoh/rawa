@@ -28,7 +28,49 @@ function handleError(res, err) {
   });
 }
 
-
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY can create users.
+ *       Each role can only create specific roles:
+ *       - SUPER_ADMIN: can create all roles
+ *       - ADMIN: can create ADMIN, DATA_ENTRY, FACTORY_OWNER, EMPLOYEE, USER
+ *       - DATA_ENTRY: can create ADMIN, DATA_ENTRY, USER
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Validation errors
+ *       403:
+ *         description: Role not allowed to create this type of user
+ *       409:
+ *         description: Username or email already exists
+ *       500:
+ *         description: Internal server error
+ */
 async function createUser(req, res) {
   try {
     const validation = createUserSchema.safeParse(req.body);
@@ -84,6 +126,58 @@ async function createUser(req, res) {
     return handleError(res, err);
   }
 }
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Update a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Users can update their own profile.
+ *       SUPER_ADMIN, ADMIN, DATA_ENTRY can update any user.
+ *       Only SUPER_ADMIN and ADMIN can change roles.
+ *       ADMIN cannot change SUPER_ADMIN accounts.
+ *       Only SUPER_ADMIN and ADMIN can change passwords; ADMIN cannot change SUPER_ADMIN passwords.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       400:
+ *         description: Validation errors
+ *       403:
+ *         description: Unauthorized action
+ *       404:
+ *         description: User not found
+ *       409:
+ *         description: Username or email already exists
+ *       500:
+ *         description: Internal server error
+ */
 
 async function updateUser(req, res) {
   try {
@@ -162,6 +256,36 @@ let password = userToUpdate.password;
   }
 }
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Users can delete their own account.
+ *       SUPER_ADMIN, ADMIN, DATA_ENTRY can delete any user.
+ *       ADMIN cannot delete SUPER_ADMIN accounts.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       400:
+ *         description: Invalid user ID
+ *       403:
+ *         description: Unauthorized action
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
 async function deleteUser(req, res) {
   try {
     const id = Number(req.params.id);
@@ -189,6 +313,23 @@ async function deleteUser(req, res) {
   }
 }
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, DATA_ENTRY can view all users.
+ *     responses:
+ *       200:
+ *         description: List of users
+ *       403:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
 async function getUsers(req, res) {
   try {
     const users = await prisma.user.findMany({ orderBy: { username: 'asc' } });
@@ -198,6 +339,34 @@ async function getUsers(req, res) {
   }
 }
 
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Users can view their own info. SUPER_ADMIN, ADMIN, DATA_ENTRY, FACTORY_OWNER
+ *       can view any user.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User info
+ *       400:
+ *         description: Invalid user ID
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
 async function getUser(req, res) {
   try {
     const id = Number(req.params.id);

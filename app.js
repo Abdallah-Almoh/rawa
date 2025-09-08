@@ -22,7 +22,7 @@ scheduleAdExpirationJob();
 // Routes
 app.use('/rawa', require('./routes/auth.routes'));
 app.use('/rawa/country',require('./routes/countryRoutes'));
-app.use('rawa/currency',require('./routes/currencyController'));
+app.use('rawa/currency',require('./routes/countryRoutes'));
 app.use('/rawa/roles', require('./routes/roleRoutes'));
 app.use('/rawa/province', require('./routes/provinceRoutes'));
 app.use('/rawa/district', require('./routes/districtRoutes'));

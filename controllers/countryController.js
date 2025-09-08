@@ -29,6 +29,56 @@ function handleError(res, err) {
   return res.status(500).json({ message: 'Internal server error' });
 }
 
+/**
+ * @swagger
+ * /rawa/countries:
+ *   post:
+ *     summary: Create a new country
+ *     tags: [Countries]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can create a new country. Includes English & Arabic names and currency info.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - engName
+ *               - arName
+ *               - currency
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               currency:
+ *                 type: object
+ *                 properties:
+ *                   code:
+ *                     type: string
+ *                   symbol:
+ *                     type: string
+ *                   exchangeRate:
+ *                     type: number
+ *     responses:
+ *       201:
+ *         description: Country created successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       409:
+ *         description: Country name already exists
+ *       500:
+ *         description: Internal server error
+ */
+
 async function createCountry(req, res) {
   try {
     const validation = createCountrySchema.safeParse(req.body);
@@ -57,6 +107,20 @@ async function createCountry(req, res) {
   }
 }
 
+/**
+ * @swagger
+ * /rawa/countries:
+ *   get:
+ *     summary: Get all countries
+ *     tags: [Countries]
+ *     description: Retrieve all countries with their currency information.
+ *     responses:
+ *       200:
+ *         description: List of countries
+ *       500:
+ *         description: Internal server error
+ */
+
 async function getCountries(req, res) {
   try {
     const countries = await prisma.country.findMany({ include: { currency: true }, orderBy: { engName: 'asc' } });
@@ -65,6 +129,29 @@ async function getCountries(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /rawa/countries/{id}:
+ *   get:
+ *     summary: Get country by ID
+ *     tags: [Countries]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Country ID
+ *     responses:
+ *       200:
+ *         description: Country found
+ *       400:
+ *         description: Invalid ID
+ *       404:
+ *         description: Country not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function getCountry(req, res) {
   try {
@@ -79,6 +166,61 @@ async function getCountry(req, res) {
     return handleError(res, err);
   }
 }
+
+/**
+ * @swagger
+ * /rawa/countries/{id}:
+ *   put:
+ *     summary: Update a country
+ *     tags: [Countries]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can update a  country. Includes English & Arabic names and currency info.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Country ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               currency:
+ *                 type: object
+ *                 properties:
+ *                   code:
+ *                     type: string
+ *                   symbol:
+ *                     type: string
+ *                   exchangeRate:
+ *                     type: number
+ *     responses:
+ *       200:
+ *         description: Country updated successfully
+ *       400:
+ *         description: Validation error / Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Country not found
+ *       409:
+ *         description: Country name conflict
+ *       500:
+ *         description: Internal server error
+ */
 
 async function updateCountry(req, res) {
   try {
@@ -119,6 +261,38 @@ async function updateCountry(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /rawa/countries/{id}:
+ *   delete:
+ *     summary: Delete a country
+ *     tags: [Countries]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can delete a new country. Includes English & Arabic names and currency info.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Country ID
+ *     responses:
+ *       200:
+ *         description: Country deleted successfully
+ *       400:
+ *         description: Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Country not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function deleteCountry(req, res) {
   try {

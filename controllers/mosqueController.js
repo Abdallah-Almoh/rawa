@@ -34,6 +34,52 @@ function handleError(res, err) {
   return res.status(500).json({ message: 'Internal server error' });
 }
 
+/**
+ * @swagger
+ * /mosques:
+ *   post:
+ *     summary: Create a new mosque
+ *     tags: [Mosques]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can create a new mosque. All required fields must be provided.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               engServName:
+ *                 type: string
+ *               arServName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               countryId:
+ *                 type: integer
+ *               provinceId:
+ *                 type: integer
+ *               districtId:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Mosque created successfully
+ *       400:
+ *         description: Validation errors
+ *       409:
+ *         description: Mosque already exists in this district
+ *       500:
+ *         description: Internal server error
+ */
 
 async function createMosque(req, res) {
   try {
@@ -62,6 +108,22 @@ async function createMosque(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /mosques:
+ *   get:
+ *     summary: Get all mosques
+ *     tags: [Mosques]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Retrieve a list of all mosques.
+ *     responses:
+ *       200:
+ *         description: List of mosques
+ *       500:
+ *         description: Internal server error
+ */
 
 async function getMosques(req, res) {
   try {
@@ -73,6 +135,33 @@ async function getMosques(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /mosques/{id}:
+ *   get:
+ *     summary: Get mosque by ID
+ *     tags: [Mosques]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Retrieve a mosque by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Mosque ID
+ *     responses:
+ *       200:
+ *         description: Mosque found
+ *       400:
+ *         description: Invalid mosque ID
+ *       404:
+ *         description: Mosque not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function getMosqueById(req, res) {
   try {
@@ -87,6 +176,61 @@ async function getMosqueById(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /mosques/{id}:
+ *   put:
+ *     summary: Update a mosque
+ *     tags: [Mosques]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can update mosque details. Fields are optional.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Mosque ID
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               engName:
+ *                 type: string
+ *               arName:
+ *                 type: string
+ *               engServName:
+ *                 type: string
+ *               arServName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               countryId:
+ *                 type: integer
+ *               provinceId:
+ *                 type: integer
+ *               districtId:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Mosque updated successfully
+ *       400:
+ *         description: Invalid request / Validation errors
+ *       404:
+ *         description: Mosque not found
+ *       409:
+ *         description: Mosque name conflict
+ *       500:
+ *         description: Internal server error
+ */
 
 async function updateMosque(req, res) {
   try {
@@ -122,6 +266,34 @@ async function updateMosque(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /mosques/{id}:
+ *   delete:
+ *     summary: Delete a mosque
+ *     tags: [Mosques]
+ *     security:
+ *       - bearerAuth: []
+ *     description: >
+ *       Only logged-in users with roles SUPER_ADMIN, ADMIN, or DATA_ENTRY
+ *       can delete a mosque by its ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Mosque ID
+ *     responses:
+ *       200:
+ *         description: Mosque deleted successfully
+ *       400:
+ *         description: Invalid mosque ID
+ *       404:
+ *         description: Mosque not found
+ *       500:
+ *         description: Internal server error
+ */
 
 async function deleteMosque(req, res) {
   try {

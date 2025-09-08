@@ -23,6 +23,48 @@ function handleError(res, err) {
   return res.status(500).json({ message: 'Internal server error' });
 }
 
+/**
+ * @swagger
+ * /currencies:
+ *   post:
+ *     summary: Create a new currency
+ *     tags: [Currencies]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can create a new currency.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *               - symbol
+ *               - exchangeRate
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: 3-letter currency code
+ *               symbol:
+ *                 type: string
+ *               exchangeRate:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Currency created successfully
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       409:
+ *         description: Currency code already exists
+ *       500:
+ *         description: Internal server error
+ */
+
 // Create currency
 async function createCurrency(req, res) {
   try {
@@ -44,6 +86,19 @@ async function createCurrency(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /currencies:
+ *   get:
+ *     summary: Get all currencies
+ *     tags: [Currencies]
+ *     description: Retrieve a list of all currencies.
+ *     responses:
+ *       200:
+ *         description: List of currencies
+ *       500:
+ *         description: Internal server error
+ */
 
 // Get all currencies
 async function getCurrencies(req, res) {
@@ -54,6 +109,29 @@ async function getCurrencies(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /currencies/{id}:
+ *   get:
+ *     summary: Get currency by ID
+ *     tags: [Currencies]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Currency ID
+ *     responses:
+ *       200:
+ *         description: Currency found
+ *       400:
+ *         description: Invalid ID
+ *       404:
+ *         description: Currency not found
+ *       500:
+ *         description: Internal server error
+ */
 
 // Get one currency
 async function getCurrency(req, res) {
@@ -69,6 +147,52 @@ async function getCurrency(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /currencies/{id}:
+ *   put:
+ *     summary: Update a currency
+ *     tags: [Currencies]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can update a  currency.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Currency ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *                 description: 3-letter currency code
+ *               symbol:
+ *                 type: string
+ *               exchangeRate:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Currency updated successfully
+ *       400:
+ *         description: Validation error / Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Currency not found
+ *       409:
+ *         description: Currency code conflict
+ *       500:
+ *         description: Internal server error
+ */
 
 // Update currency
 async function updateCurrency(req, res) {
@@ -98,6 +222,36 @@ async function updateCurrency(req, res) {
     return handleError(res, err);
   }
 }
+/**
+ * @swagger
+ * /currencies/{id}:
+ *   delete:
+ *     summary: Delete a currency
+ *     tags: [Currencies]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Only SUPER_ADMIN, ADMIN, or DATA_ENTRY can delete a  currency.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Currency ID
+ *     responses:
+ *       200:
+ *         description: Currency deleted successfully
+ *       400:
+ *         description: Invalid ID
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Currency not found
+ *       500:
+ *         description: Internal server error
+ */
 
 // Delete currency
 async function deleteCurrency(req, res) {
