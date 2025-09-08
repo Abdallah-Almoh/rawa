@@ -16,9 +16,12 @@ async function start() {
     console.log('✅ Connected to the database');
 
     const server = http.createServer(app);
-    server.listen(PORT, () => {
-      console.log(`🚀 Server listening on http://localhost:${PORT}`);
-    });
+    // server.listen(PORT, () => {
+    //   console.log(`🚀 Server listening on http://localhost:${PORT}`);
+    // });
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server listening on http://0.0.0.0:${PORT}`);
+});
 
     // Graceful shutdown
     const shutdown = async (signal) => {

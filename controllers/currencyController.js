@@ -25,7 +25,7 @@ function handleError(res, err) {
 
 /**
  * @swagger
- * /currencies:
+ * /rawa/currencies:
  *   post:
  *     summary: Create a new currency
  *     tags: [Currencies]
@@ -88,7 +88,7 @@ async function createCurrency(req, res) {
 }
 /**
  * @swagger
- * /currencies:
+ * /rawa/currencies:
  *   get:
  *     summary: Get all currencies
  *     tags: [Currencies]
@@ -111,7 +111,7 @@ async function getCurrencies(req, res) {
 }
 /**
  * @swagger
- * /currencies/{id}:
+ * /rawa/currencies/{id}:
  *   get:
  *     summary: Get currency by ID
  *     tags: [Currencies]
@@ -149,7 +149,7 @@ async function getCurrency(req, res) {
 }
 /**
  * @swagger
- * /currencies/{id}:
+ * /rawa/currencies/{id}:
  *   put:
  *     summary: Update a currency
  *     tags: [Currencies]
@@ -224,7 +224,7 @@ async function updateCurrency(req, res) {
 }
 /**
  * @swagger
- * /currencies/{id}:
+ * /rawa/currencies/{id}:
  *   delete:
  *     summary: Delete a currency
  *     tags: [Currencies]

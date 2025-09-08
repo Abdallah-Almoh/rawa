@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const setupSwagger = require('./swagger');
-const swaggerUi = require('swagger-ui-express');
+// const swaggerUi = require('swagger-ui-express');
 const path = require('path');
 const { scheduleAdExpirationJob } = require('./controllers/adController');
 
@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname,'public')));
 
 // Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(setupSwagger));
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(setupSwagger));
 setupSwagger(app);
 // Middlewares
 app.use(cors());

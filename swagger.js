@@ -25,7 +25,6 @@
 // }
 
 // module.exports = setupSwagger;
-
 'use strict';
 
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -37,17 +36,10 @@ const options = {
     info: {
       title: 'Rawaa API',
       version: '1.0.0',
-      description: 'API documentation for Rawaa project',
+      description: 'API documentation for Rawa project',
     },
     servers: [
-      {
-        url: 'http://tacticjo.ashyaaaonline.com:3001',
-        description: 'Production server',
-      },
-      {
-        url: 'http://localhost:3001',
-        description: 'Local development server',
-      },
+      { url: 'http://tacticjo.ashyaaaonline.com', description: 'Tacticjo backend server' }
     ],
   },
   apis: ['./routes/*.js', './controllers/*.js'], 
